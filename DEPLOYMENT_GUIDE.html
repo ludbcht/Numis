@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide de Déploiement - Numis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .step {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        
+        .step h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 6px;
+        }
+        
+        .success {
+            background: #d1e7dd;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 6px;
+        }
+        
+        .info {
+            background: #cfe2ff;
+            border-left: 4px solid #0d6efd;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 6px;
+        }
+        
+        .button {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            margin: 10px 5px;
+            transition: transform 0.2s;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🪙 Numis</h1>
+            <p>Guide de Déploiement sur GitHub Pages</p>
+        </div>
+        
+        <div class="content">
+            <div class="warning">
+                <strong>⚠️ Important :</strong> GitHub Pages héberge uniquement des fichiers statiques (HTML/CSS/JS). 
+                Vous devez déployer le backend séparément sur un service comme Render, Railway ou Vercel.
+            </div>
+            
+            <div class="step">
+                <h2>
+                    <span class="step-number">1</span>
+                    Déployer le Backend
+                </h2>
+                <p><strong>Option recommandée : Render.com (Gratuit)</strong></p>
+                <ol>
+                    <li>Créez un compte sur <a href="https://render.com" target="_blank">Render.com</a></li>
+                    <li>Créez un "Web Service" depuis votre dépôt GitHub</li>
+                    <li>Configuration :
+                        <ul>
+                            <li><strong>Build Command :</strong> <code>pip install -r backend/requirements.txt</code></li>
+                            <li><strong>Start Command :</strong> <code>cd backend && uvicorn server:app --host 0.0.0.0 --port $PORT</code></li>
+                        </ul>
+                    </li>
+                    <li>Variables d'environnement :
+                        <div class="code-block">MONGO_URL=mongodb+srv://votre-cluster.mongodb.net/
+DB_NAME=numis_db
+CORS_ORIGINS=https://votre-username.github.io</div>
+                    </li>
+                    <li><strong>Notez l'URL</strong> de votre backend (ex: https://numis-backend.onrender.com)</li>
+                </ol>
+                
+                <a href="https://render.com" target="_blank" class="button">Aller sur Render</a>
+                <a href="https://www.mongodb.com/cloud/atlas" target="_blank" class="button">MongoDB Atlas (Gratuit)</a>
+            </div>
+            
+            <div class="step">
+                <h2>
+                    <span class="step-number">2</span>
+                    Préparer le Frontend
+                </h2>
+                <p>Le build de production est déjà créé dans <code>/app/frontend/build/</code></p>
+                
+                <div class="info">
+                    <strong>📁 Fichiers prêts :</strong>
+                    <ul>
+                        <li><code>index.html</code> - Page principale ✅</li>
+                        <li><code>static/</code> - CSS, JS, assets ✅</li>
+                        <li><code>.nojekyll</code> - Configuration GitHub Pages ✅</li>
+                    </ul>
+                </div>
+                
+                <p><strong>Pour reconstruire avec votre URL backend :</strong></p>
+                <div class="code-block">cd /app/frontend
+echo "REACT_APP_BACKEND_URL=https://votre-backend.onrender.com" > .env
+yarn build</div>
+            </div>
+            
+            <div class="step">
+                <h2>
+                    <span class="step-number">3</span>
+                    Créer le Dépôt GitHub
+                </h2>
+                <ol>
+                    <li>Créez un nouveau dépôt sur <a href="https://github.com/new" target="_blank">GitHub</a></li>
+                    <li>Nom suggéré : <code>numis-coin-collector</code></li>
+                    <li>Type : Public ou Privé (au choix)</li>
+                    <li>Cochez "Add a README file"</li>
+                </ol>
+                
+                <a href="https://github.com/new" target="_blank" class="button">Créer un dépôt GitHub</a>
+            </div>
+            
+            <div class="step">
+                <h2>
+                    <span class="step-number">4</span>
+                    Déployer sur GitHub Pages
+                </h2>
+                <p><strong>Méthode A : Upload manuel</strong></p>
+                <ol>
+                    <li>Téléchargez le contenu de <code>/app/frontend/build/</code></li>
+                    <li>Dans votre dépôt GitHub, cliquez sur "Upload files"</li>
+                    <li>Glissez tous les fichiers du dossier build</li>
+                    <li>Commitez les changements</li>
+                </ol>
+                
+                <p><strong>Méthode B : Git CLI</strong></p>
+                <div class="code-block">git clone https://github.com/votre-username/numis-coin-collector
+cd numis-coin-collector
+cp -r /app/frontend/build/* .
+git add .
+git commit -m "Deploy to GitHub Pages"
+git push origin main</div>
+            </div>
+            
+            <div class="step">
+                <h2>
+                    <span class="step-number">5</span>
+                    Activer GitHub Pages
+                </h2>
+                <ol>
+                    <li>Dans votre dépôt GitHub, allez dans <strong>Settings</strong></li>
+                    <li>Cliquez sur <strong>Pages</strong> dans le menu latéral</li>
+                    <li>Source : Sélectionnez <strong>Deploy from a branch</strong></li>
+                    <li>Branch : Choisissez <strong>main</strong> et <strong>/ (root)</strong></li>
+                    <li>Cliquez sur <strong>Save</strong></li>
+                    <li>Attendez 2-3 minutes</li>
+                </ol>
+                
+                <div class="success">
+                    <strong>🎉 Votre site sera disponible à :</strong><br>
+                    <code>https://votre-username.github.io/numis-coin-collector/</code>
+                </div>
+            </div>
+            
+            <div class="step">
+                <h2>
+                    <span class="step-number">6</span>
+                    Initialiser les Données
+                </h2>
+                <p>Une fois le backend déployé, initialisez les 468 pièces :</p>
+                <div class="code-block">curl -X POST https://votre-backend.onrender.com/api/admin/refresh-coins</div>
+                
+                <p>Cela va scraper toutes les pièces depuis la BCE (prend ~1-2 minutes)</p>
+            </div>
+            
+            <div class="info">
+                <h3>🔐 Connexion</h3>
+                <p><strong>Nom d'utilisateur :</strong> Ludivine</p>
+                <p><strong>Mot de passe :</strong> Ludivine67</p>
+            </div>
+            
+            <div class="warning">
+                <h3>⚡ Performance Render (Plan Gratuit)</h3>
+                <p>Le backend Render gratuit se met en veille après 15 minutes d'inactivité. 
+                La première requête après veille prendra ~30 secondes (temps de redémarrage).</p>
+                <p><strong>Solution :</strong> Gardez un onglet ouvert ou utilisez un service de ping (ex: UptimeRobot).</p>
+            </div>
+            
+            <div class="success">
+                <h3>✅ Fonctionnalités Disponibles</h3>
+                <ul>
+                    <li>468 pièces de 2€ commémoratives (2004-2024)</li>
+                    <li>Images officielles BCE</li>
+                    <li>Filtres par pays, année, recherche</li>
+                    <li>Gestion de collection personnelle</li>
+                    <li>Statistiques en temps réel</li>
+                    <li>Mode sombre/clair</li>
+                </ul>
+            </div>
+            
+            <div style="text-align: center; padding: 30px 0;">
+                <h3>🔗 Liens Utiles</h3>
+                <a href="https://pages.github.com/" target="_blank" class="button">Doc GitHub Pages</a>
+                <a href="https://render.com/docs" target="_blank" class="button">Doc Render</a>
+                <a href="https://www.mongodb.com/docs/atlas/" target="_blank" class="button">Doc MongoDB</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
