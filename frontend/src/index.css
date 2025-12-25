@@ -71,6 +71,10 @@ code {
     body {
         @apply bg-background text-foreground;
     }
+    /* Hide Emergent badge */
+    #emergent-badge {
+        display: none !important;
+    }
 }
 
 @layer base {
