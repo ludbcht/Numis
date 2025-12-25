@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Coins, LogOut, BookOpen, Library } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -47,15 +48,18 @@ export default function DashboardPage({ user, onLogout }) {
               </div>
               <h1 className="text-2xl font-heading font-bold tracking-tight">Numis</h1>
             </div>
-            <Button
-              variant="ghost"
-              onClick={handleLogout}
-              data-testid="logout-button"
-              className="gap-2"
-            >
-              <LogOut className="w-4 h-4" />
-              Déconnexion
-            </Button>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <Button
+                variant="ghost"
+                onClick={handleLogout}
+                data-testid="logout-button"
+                className="gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                Déconnexion
+              </Button>
+            </div>
           </div>
         </div>
       </header>
