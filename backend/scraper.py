@@ -82,87 +82,57 @@ class CoinScraper:
         
         return coins
     
-    def extract_coin_from_section(self, section, year: int) -> Dict:
-        """Extrait les informations d'une pièce depuis une section"""
-        # Chercher l'image
-        img = section.find('img')
-        if not img:
-            return None
-        
-        image_url = img.get('src', '')
-        if image_url and not image_url.startswith('http'):
-            image_url = self.base_url + image_url
-        
-        # Extraire le texte de la section
-        text = section.get_text(strip=True)
-        
-        # Chercher le pays (généralement en gras ou dans un titre)
+    def extract_coin_from_box(self, box, year: int) -> Dict:
+        """Extrait les informations d'une pièce depuis une box div"""
+        # Chercher le pays dans le h3
         country = "Unknown"
-        country_elem = section.find(['h2', 'h3', 'h4', 'strong', 'b'])
+        country_elem = box.find('h3')
         if country_elem:
             country = country_elem.get_text(strip=True)
         
-        # Description
-        description = text[:200] if text else f"Pièce commémorative {year}"
+        # Chercher l'image
+        img = box.find('img')
+        image_url = ""
+        if img:
+            image_url = img.get('src', '')
+            if image_url and not image_url.startswith('http'):
+                image_url = self.base_url + image_url
         
-        # Tirage (chercher des nombres)
-        mintage = 1000000  # Valeur par défaut
-        mintage_match = re.search(r'(\d{1,3}(?:[,.\s]\d{3})*)\s*(?:coins|pieces|mintage)', text, re.I)
+        # Extraire les informations de la content-box
+        content_box = box.find('div', class_='content-box')
+        if not content_box:
+            return None
+        
+        # Description
+        description = "Pièce commémorative"
+        feature_elem = content_box.find('p')
+        if feature_elem:
+            feature_text = feature_elem.get_text(strip=True)
+            if ':' in feature_text:
+                description = feature_text.split(':', 1)[1].strip()
+            else:
+                description = feature_text
+        
+        # Tirage (chercher "Issuing volume")
+        mintage = 1000000
+        text = content_box.get_text()
+        mintage_match = re.search(r'Issuing volume[:\s]+([0-9,\s]+)', text, re.I)
         if mintage_match:
-            mintage_str = mintage_match.group(1).replace(',', '').replace('.', '').replace(' ', '')
+            mintage_str = mintage_match.group(1).replace(',', '').replace(' ', '').strip()
             try:
                 mintage = int(mintage_str)
             except:
-                pass
+                mintage = 1000000
         
         return {
             "country": country,
             "year": year,
-            "description": description,
+            "description": description[:200],
             "mintage": mintage,
             "image_url": image_url or f"https://images.unsplash.com/photo-1585483391381-b96dda4fae8f?q=85&w=600&auto=format&fit=crop",
             "value_fdc": self.estimate_value(mintage, "fdc"),
             "value_bu": self.estimate_value(mintage, "bu"),
             "value_be": self.estimate_value(mintage, "be")
-        }
-    
-    def extract_coin_from_image(self, img, year: int) -> Dict:
-        """Extrait les informations d'une pièce depuis une image"""
-        image_url = img.get('src', '')
-        if image_url and not image_url.startswith('http'):
-            image_url = self.base_url + image_url
-        
-        alt_text = img.get('alt', '')
-        title_text = img.get('title', '')
-        
-        description = alt_text or title_text or f"Pièce commémorative {year}"
-        
-        # Chercher le pays dans le texte environnant
-        parent = img.find_parent(['div', 'section', 'td'])
-        country = "Unknown"
-        if parent:
-            text = parent.get_text(strip=True)
-            # Liste des pays de la zone euro
-            countries = ['Germany', 'Austria', 'Belgium', 'Spain', 'Finland', 'France', 
-                        'Greece', 'Ireland', 'Italy', 'Luxembourg', 'Netherlands', 
-                        'Portugal', 'Slovenia', 'Cyprus', 'Malta', 'Slovakia', 
-                        'Estonia', 'Latvia', 'Lithuania', 'Croatia', 'Monaco', 
-                        'San Marino', 'Vatican', 'Andorra']
-            
-            for c in countries:
-                if c.lower() in text.lower():
-                    country = c
-                    break
-        
-        return {
-            "country": country,
-            "year": year,
-            "description": description,
-            "mintage": 1000000,
-            "image_url": image_url or f"https://images.unsplash.com/photo-1585483391381-b96dda4fae8f?q=85&w=600&auto=format&fit=crop",
-            "value_fdc": 4.0,
-            "value_bu": 7.0,
-            "value_be": 14.0
         }
     
     def estimate_value(self, mintage: int, condition: str) -> float:
