@@ -68,32 +68,17 @@ class CoinScraper:
         """Parse une page d'année pour extraire les pièces"""
         coins = []
         
-        # Chercher toutes les sections de pièces
-        # Le site BCE utilise des structures variées, on cherche les images et textes associés
+        # Le site BCE utilise des div.box pour chaque pièce
+        coin_boxes = soup.find_all('div', class_='box')
         
-        # Méthode 1: Chercher les divs avec les informations de pièces
-        coin_sections = soup.find_all(['div', 'section'], class_=re.compile('coin|commemorative', re.I))
-        
-        for section in coin_sections:
+        for box in coin_boxes:
             try:
-                coin = self.extract_coin_from_section(section, year)
+                coin = self.extract_coin_from_box(box, year)
                 if coin:
                     coins.append(coin)
             except Exception as e:
-                logger.debug(f"Error parsing section: {e}")
+                logger.debug(f"Error parsing box: {e}")
                 continue
-        
-        # Méthode 2: Chercher directement les images de pièces
-        if not coins:
-            images = soup.find_all('img', src=re.compile('coin|euro|commemorative', re.I))
-            for img in images:
-                try:
-                    coin = self.extract_coin_from_image(img, year)
-                    if coin:
-                        coins.append(coin)
-                except Exception as e:
-                    logger.debug(f"Error parsing image: {e}")
-                    continue
         
         return coins
     
