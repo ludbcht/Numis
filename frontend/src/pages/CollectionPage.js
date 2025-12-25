@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import CoinCard from "@/components/CoinCard";
 import { motion } from "framer-motion";
+import ThemeToggle from "@/components/ThemeToggle";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -96,6 +97,7 @@ export default function CollectionPage({ user, onLogout }) {
               >
                 Catalogue
               </Button>
+              <ThemeToggle />
               <Button variant="ghost" onClick={handleLogout} className="gap-2">
                 <LogOut className="w-4 h-4" />
                 Déconnexion
