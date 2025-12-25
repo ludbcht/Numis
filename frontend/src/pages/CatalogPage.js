@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import CoinCard from "@/components/CoinCard";
 import CoinDetailDialog from "@/components/CoinDetailDialog";
 import { motion } from "framer-motion";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -109,6 +110,7 @@ export default function CatalogPage({ user, onLogout }) {
               >
                 Ma collection
               </Button>
+              <ThemeToggle />
               <Button variant="ghost" onClick={handleLogout} className="gap-2">
                 <LogOut className="w-4 h-4" />
                 Déconnexion
