@@ -19,28 +19,34 @@ class CoinScraper:
         }
     
     async def scrape_coins(self) -> List[Dict]:
-        """Scrape les données des pièces depuis BCE et 2euros.org"""
+        """Scrape les données des pièces depuis BCE et optionnellement 2euros.org"""
         try:
-            logger.info("Starting combined scraping from ECB and 2euros.org...")
+            logger.info("Starting scraping from ECB...")
             
             # Scraper la BCE pour les données officielles
             ecb_coins = await self.scrape_ecb_coins()
             logger.info(f"ECB scraping completed: {len(ecb_coins)} coins")
             
-            # Scraper 2euros.org pour les données complémentaires
-            scraper_2euros = TwoEurosScraper()
-            coins_2euros = await scraper_2euros.scrape_all_coins()
-            logger.info(f"2euros.org scraping completed: {len(coins_2euros)} coins")
+            # Tentative de scraper 2euros.org pour les données complémentaires (optionnel)
+            try:
+                logger.info("Attempting to scrape 2euros.org for additional data...")
+                scraper_2euros = TwoEurosScraper()
+                coins_2euros = await scraper_2euros.scrape_all_coins()
+                logger.info(f"2euros.org scraping completed: {len(coins_2euros)} coins")
+                
+                if coins_2euros:
+                    # Fusionner les données si disponibles
+                    ecb_coins = self.merge_coin_data(ecb_coins, coins_2euros)
+                    logger.info(f"Merged with 2euros.org data: {len(ecb_coins)} coins")
+            except Exception as e:
+                logger.warning(f"Could not scrape 2euros.org (optional): {e}")
+                # Continuer avec les données BCE seulement
             
-            # Fusionner les données
-            merged_coins = self.merge_coin_data(ecb_coins, coins_2euros)
-            logger.info(f"Total merged coins: {len(merged_coins)}")
+            if not ecb_coins:
+                logger.warning("No coins found from ECB, using fallback data")
+                ecb_coins = await self.get_initial_coin_data()
             
-            if not merged_coins:
-                logger.warning("No coins found, using fallback data")
-                merged_coins = await self.get_initial_coin_data()
-            
-            return merged_coins
+            return ecb_coins
             
         except Exception as e:
             logger.error(f"Error in scrape_coins: {e}")
