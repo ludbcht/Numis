@@ -30,7 +30,7 @@ class CoinScraper:
             return await self.get_initial_coin_data()
     
     async def scrape_ecb_coins(self) -> List[Dict]:
-        """Scrape le site officiel de la BCE"""
+        """Scrape le site officiel de la BCE en français"""
         coins = []
         
         # Années à scraper (de 2004 à 2024)
@@ -39,8 +39,9 @@ class CoinScraper:
         async with httpx.AsyncClient(timeout=30.0) as client:
             for year in years:
                 try:
-                    url = f"{self.base_url}/euro/coins/comm/html/comm_{year}.en.html"
-                    logger.info(f"Scraping ECB year {year}: {url}")
+                    # URL pour chaque année EN FRANÇAIS
+                    url = f"{self.base_url}/euro/coins/comm/html/comm_{year}.fr.html"
+                    logger.info(f"Scraping ECB year {year} (FR): {url}")
                     
                     response = await client.get(url, headers=self.headers, follow_redirects=True)
                     
