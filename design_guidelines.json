@@ -1,0 +1,138 @@
+{
+  "identity": {
+    "name": "Numis - The Curator's Vault",
+    "persona": "E1",
+    "vibe": "Museum Archive meets Swiss Finance. Precision, History, Value.",
+    "principles": [
+      "The Coin is the Hero: Interface recedes, content shines.",
+      "Tactile Digital: Use noise, shadows, and motion to mimic physical collecting.",
+      "Data as Art: Stats are not just numbers, they are the collection's pulse.",
+      "Asymmetry: Break the grid to create visual interest."
+    ]
+  },
+  "typography": {
+    "fonts": {
+      "heading": {
+        "family": "Syne",
+        "url": "https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&display=swap",
+        "usage": "Hero titles, Section headers, Big stats. Use font-weight 700 or 800 for impact.",
+        "fallback": "sans-serif"
+      },
+      "body": {
+        "family": "Manrope",
+        "url": "https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&display=swap",
+        "usage": "UI elements, metadata, paragraphs, tables.",
+        "fallback": "sans-serif"
+      }
+    },
+    "rules": [
+      "Headings: tracking-tight, leading-none.",
+      "Overlines: uppercase, tracking-widest, text-xs, font-semibold.",
+      "Numbers: Use tabular-nums for prices and years."
+    ]
+  },
+  "colors": {
+    "palette": {
+      "light": {
+        "background": "#FAFAF9",
+        "surface": "#FFFFFF",
+        "text-primary": "#1C1917",
+        "text-secondary": "#57534E",
+        "border": "#E7E5E4",
+        "accent": "#D97706"
+      },
+      "dark": {
+        "background": "#020617",
+        "surface": "#0F172A",
+        "text-primary": "#F8FAFC",
+        "text-secondary": "#94A3B8",
+        "border": "#1E293B",
+        "accent": "#F59E0B"
+      }
+    },
+    "usage": {
+      "primary": "slate-950 (Dark) / stone-50 (Light)",
+      "secondary": "slate-900 (Dark) / white (Light)",
+      "accent": "amber-600 (The 'Nordic Gold' touch)",
+      "muted": "slate-500",
+      "danger": "rose-600"
+    },
+    "gradients": {
+      "gold-sheen": "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)",
+      "silver-sheen": "linear-gradient(135deg, #E2E8F0 0%, #94A3B8 100%)"
+    }
+  },
+  "visual_enhancers": {
+    "texture": "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E\")",
+    "glassmorphism": "backdrop-blur-xl bg-white/5 border border-white/10",
+    "shadows": {
+      "coin-lift": "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
+      "floating-bar": "0 10px 40px -10px rgba(0,0,0,0.2)"
+    }
+  },
+  "layout_strategy": {
+    "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+    "spacing": "Generous. Use py-12 or py-24 for section gaps.",
+    "grids": {
+      "catalog": "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8",
+      "dashboard": "grid grid-cols-1 md:grid-cols-12 gap-6"
+    }
+  },
+  "components": {
+    "CoinCard": {
+      "description": "A minimalist card that focuses on the circular coin image.",
+      "style": "bg-transparent hover:-translate-y-2 transition-transform duration-300 group",
+      "structure": [
+        "Image: Aspect ratio 1:1, rounded-full, shadow-lg group-hover:shadow-xl transition-all",
+        "Title: font-heading font-bold text-lg mt-4",
+        "Meta: flex row gap-2 text-sm text-muted-foreground"
+      ]
+    },
+    "FilterBar": {
+      "description": "Floating pill-shaped bar at the bottom or top, not a sidebar.",
+      "style": "fixed bottom-8 left-1/2 -translate-x-1/2 z-50 bg-background/80 backdrop-blur-md border border-border rounded-full px-6 py-3 shadow-2xl flex gap-4 items-center"
+    },
+    "StatsWidget": {
+      "description": "Clean, typographic stat block.",
+      "style": "p-6 rounded-2xl bg-secondary/50 border border-border/50",
+      "content": "Label (uppercase, small) + Value (huge, font-heading) + Trend (small, colored)"
+    }
+  },
+  "image_urls": {
+    "hero_bg": "https://images.unsplash.com/photo-1630856826965-f274fce8e532?q=85&w=1920&auto=format&fit=crop",
+    "collection_hero": "https://images.unsplash.com/photo-1634108941345-3a6a66685563?q=85&w=1920&auto=format&fit=crop",
+    "map_texture": "https://images.unsplash.com/photo-1721295977910-e0a1aa47d3b5?q=85&w=1920&auto=format&fit=crop",
+    "placeholder_coin": "https://images.unsplash.com/photo-1585483391381-b96dda4fae8f?q=85&w=600&auto=format&fit=crop"
+  },
+  "motion": {
+    "library": "framer-motion",
+    "variants": {
+      "fadeIn": {
+        "initial": { "opacity": 0, "y": 20 },
+        "animate": { "opacity": 1, "y": 0 },
+        "transition": { "duration": 0.5 }
+      },
+      "staggerContainer": {
+        "animate": { "transition": { "staggerChildren": 0.1 } }
+      }
+    }
+  },
+  "instructions_to_main_agent": [
+    "1. INSTALL FONTS: Add Syne and Manrope from Google Fonts to index.html or import in CSS.",
+    "2. SETUP TAILWIND: Extend the theme with the colors and fonts defined above.",
+    "3. CREATE LAYOUT: Build a 'DashboardLayout' and 'PublicLayout'. Dashboard should use a sidebar, Public should use a top nav.",
+    "4. BUILD COMPONENTS: Start with the 'CoinCard' and 'FilterBar'. Use Shadcn for the internal logic but style them according to the 'Visual Enhancers'.",
+    "5. USE IMAGES: Use the provided Unsplash URLs for the landing page and empty states.",
+    "6. DATA MOCKING: Create a robust mock data file for coins if the backend isn't ready. The UI must look populated.",
+    "7. DARK MODE: Implement a theme toggle. Default to 'System'.",
+    "8. MAP: For the 'Map' view, use a simple CSS grid of country codes or a static SVG if a library is too heavy. Do not overengineer the map initially."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "Avoid generic 'AI slop' designs. Be bold with spacing.",
+    "Use 'sonner' for toasts.",
+    "Use 'lucide-react' for icons.",
+    "Ensure all interactive elements have 'data-testid'.",
+    "Do not use 'transition: all'.",
+    "Make sure the '2 Euro' identity is clear - use the gold/silver color scheme subtly."
+  ]
+}
