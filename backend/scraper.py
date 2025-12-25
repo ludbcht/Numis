@@ -93,7 +93,11 @@ class CoinScraper:
         if img:
             image_url = img.get('src', '')
             if image_url and not image_url.startswith('http'):
-                image_url = self.base_url + image_url
+                # S'assurer que le chemin commence par /
+                if not image_url.startswith('/'):
+                    image_url = '/' + image_url
+                # Construire l'URL complète avec le bon chemin
+                image_url = self.base_url + '/euro/coins/comm/html/' + image_url.lstrip('/')
         
         # Extraire les informations de la content-box
         content_box = box.find('div', class_='content-box')
