@@ -115,6 +115,10 @@ class CoinScraper:
             else:
                 description = feature_text
         
+        # Capitaliser la première lettre
+        if description:
+            description = description[0].upper() + description[1:] if len(description) > 1 else description.upper()
+        
         # Tirage (chercher "Issuing volume")
         mintage = 1000000
         text = content_box.get_text()
