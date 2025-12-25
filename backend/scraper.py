@@ -27,6 +27,10 @@ class CoinScraper:
             ecb_coins = await self.scrape_ecb_coins()
             logger.info(f"ECB scraping completed: {len(ecb_coins)} coins")
             
+            if not ecb_coins:
+                logger.warning("No coins found from ECB, using fallback data")
+                return await self.get_initial_coin_data()
+            
             # Tentative de scraper 2euros.org pour les données complémentaires (optionnel)
             try:
                 logger.info("Attempting to scrape 2euros.org for additional data...")
@@ -36,16 +40,13 @@ class CoinScraper:
                 
                 if coins_2euros:
                     # Fusionner les données si disponibles
-                    ecb_coins = self.merge_coin_data(ecb_coins, coins_2euros)
-                    logger.info(f"Merged with 2euros.org data: {len(ecb_coins)} coins")
+                    merged_coins = self.merge_coin_data(ecb_coins, coins_2euros)
+                    logger.info(f"Merged with 2euros.org data: {len(merged_coins)} total coins")
+                    return merged_coins
             except Exception as e:
                 logger.warning(f"Could not scrape 2euros.org (optional): {e}")
-                # Continuer avec les données BCE seulement
             
-            if not ecb_coins:
-                logger.warning("No coins found from ECB, using fallback data")
-                ecb_coins = await self.get_initial_coin_data()
-            
+            # Retourner les données BCE
             return ecb_coins
             
         except Exception as e:
