@@ -4,31 +4,94 @@ import asyncio
 import logging
 from typing import List, Dict
 import re
+from scraper_2euros import TwoEurosScraper
 
 logger = logging.getLogger(__name__)
 
 class CoinScraper:
-    """Web scraper pour les pièces de 2 euros commémoratives depuis le site de la BCE"""
+    """Web scraper pour les pièces de 2 euros commémoratives - combine BCE et 2euros.org"""
     
     def __init__(self):
-        self.base_url = "https://www.ecb.europa.eu"
+        self.base_url_ecb = "https://www.ecb.europa.eu"
         self.coins_data = []
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         }
     
     async def scrape_coins(self) -> List[Dict]:
-        """Scrape les données des pièces de 2 euros commémoratives depuis la BCE"""
+        """Scrape les données des pièces depuis BCE et 2euros.org"""
         try:
-            coins = await self.scrape_ecb_coins()
-            if not coins:
-                # Fallback sur données initiales si le scraping échoue
-                logger.warning("Scraping failed, using initial data")
-                coins = await self.get_initial_coin_data()
-            return coins
+            logger.info("Starting combined scraping from ECB and 2euros.org...")
+            
+            # Scraper la BCE pour les données officielles
+            ecb_coins = await self.scrape_ecb_coins()
+            logger.info(f"ECB scraping completed: {len(ecb_coins)} coins")
+            
+            # Scraper 2euros.org pour les données complémentaires
+            scraper_2euros = TwoEurosScraper()
+            coins_2euros = await scraper_2euros.scrape_all_coins()
+            logger.info(f"2euros.org scraping completed: {len(coins_2euros)} coins")
+            
+            # Fusionner les données
+            merged_coins = self.merge_coin_data(ecb_coins, coins_2euros)
+            logger.info(f"Total merged coins: {len(merged_coins)}")
+            
+            if not merged_coins:
+                logger.warning("No coins found, using fallback data")
+                merged_coins = await self.get_initial_coin_data()
+            
+            return merged_coins
+            
         except Exception as e:
             logger.error(f"Error in scrape_coins: {e}")
             return await self.get_initial_coin_data()
+    
+    def merge_coin_data(self, ecb_coins: List[Dict], coins_2euros: List[Dict]) -> List[Dict]:
+        """Fusionne les données de la BCE et 2euros.org"""
+        merged = []
+        
+        # Créer un index des pièces 2euros par pays+année
+        euros_index = {}
+        for coin in coins_2euros:
+            key = f"{coin['country'].lower().strip()}_{coin['year']}"
+            if key not in euros_index:
+                euros_index[key] = []
+            euros_index[key].append(coin)
+        
+        # Fusionner avec les données ECB (priorité aux données ECB pour description et tirage)
+        for ecb_coin in ecb_coins:
+            country_normalized = ecb_coin['country'].lower().strip()
+            key = f"{country_normalized}_{ecb_coin['year']}"
+            
+            # Chercher une correspondance dans 2euros.org
+            match_found = False
+            if key in euros_index and euros_index[key]:
+                # Prendre la première correspondance
+                euros_coin = euros_index[key].pop(0)
+                
+                # Fusionner: garder les meilleures données de chaque source
+                merged_coin = {
+                    "country": ecb_coin['country'],  # ECB pour consistance
+                    "year": ecb_coin['year'],
+                    "description": ecb_coin['description'],  # ECB plus détaillé
+                    "mintage": ecb_coin['mintage'],  # ECB officiel
+                    "image_url": euros_coin['image_url'] if euros_coin['image_url'] and 'unsplash' not in euros_coin['image_url'] else ecb_coin['image_url'],  # Préférer 2euros si disponible
+                    "value_fdc": euros_coin['value_fdc'],  # Prix de 2euros.org
+                    "value_bu": euros_coin['value_bu'],
+                    "value_be": euros_coin['value_be']
+                }
+                merged.append(merged_coin)
+                match_found = True
+            
+            # Si pas de correspondance, garder la pièce ECB
+            if not match_found:
+                merged.append(ecb_coin)
+        
+        # Ajouter les pièces restantes de 2euros.org qui n'étaient pas dans ECB
+        for coins_list in euros_index.values():
+            merged.extend(coins_list)
+        
+        return merged
     
     async def scrape_ecb_coins(self) -> List[Dict]:
         """Scrape le site officiel de la BCE"""
@@ -40,9 +103,8 @@ class CoinScraper:
         async with httpx.AsyncClient(timeout=30.0) as client:
             for year in years:
                 try:
-                    # URL pour chaque année
-                    url = f"{self.base_url}/euro/coins/comm/html/comm_{year}.en.html"
-                    logger.info(f"Scraping year {year}: {url}")
+                    url = f"{self.base_url_ecb}/euro/coins/comm/html/comm_{year}.en.html"
+                    logger.info(f"Scraping ECB year {year}: {url}")
                     
                     response = await client.get(url, headers=self.headers, follow_redirects=True)
                     
@@ -54,14 +116,13 @@ class CoinScraper:
                     else:
                         logger.warning(f"Failed to fetch {year}: {response.status_code}")
                     
-                    # Petit délai pour ne pas surcharger le serveur
                     await asyncio.sleep(0.5)
                     
                 except Exception as e:
                     logger.error(f"Error scraping year {year}: {e}")
                     continue
         
-        logger.info(f"Total coins scraped: {len(coins)}")
+        logger.info(f"Total ECB coins scraped: {len(coins)}")
         return coins
     
     def parse_year_page(self, soup: BeautifulSoup, year: int) -> List[Dict]:
