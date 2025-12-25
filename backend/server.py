@@ -102,8 +102,10 @@ async def initialize_database():
     # Check if coins exist
     coin_count = await db.coins.count_documents({})
     if coin_count == 0:
+        logger.info("Starting coin scraping from ECB website...")
         scraper = CoinScraper()
         coins_data = await scraper.scrape_coins()
+        logger.info(f"Scraping completed. Inserting {len(coins_data)} coins...")
         for coin_data in coins_data:
             coin = Coin(**coin_data)
             await db.coins.insert_one(coin.model_dump())
