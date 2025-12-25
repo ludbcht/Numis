@@ -288,6 +288,35 @@ async def get_years():
     years = list(set(coin["year"] for coin in coins))
     return sorted(years, reverse=True)
 
+@api_router.post("/admin/refresh-coins")
+async def refresh_coins():
+    """Endpoint admin pour rafraîchir les données de pièces depuis la BCE"""
+    try:
+        # Supprimer toutes les pièces existantes
+        await db.coins.delete_many({})
+        logger.info("Deleted existing coins")
+        
+        # Lancer le scraping
+        logger.info("Starting coin scraping from ECB website...")
+        scraper = CoinScraper()
+        coins_data = await scraper.scrape_coins()
+        logger.info(f"Scraping completed. Found {len(coins_data)} coins")
+        
+        # Insérer les nouvelles pièces
+        for coin_data in coins_data:
+            coin = Coin(**coin_data)
+            await db.coins.insert_one(coin.model_dump())
+        
+        logger.info(f"Successfully inserted {len(coins_data)} coins")
+        return {
+            "success": True,
+            "message": f"Base de données mise à jour avec {len(coins_data)} pièces",
+            "count": len(coins_data)
+        }
+    except Exception as e:
+        logger.error(f"Error refreshing coins: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Include the router in the main app
 app.include_router(api_router)
 
